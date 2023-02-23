@@ -1,0 +1,5 @@
+apt update
+apt upgrade -y 
+apt install nginx -y    (-y pour dire yes)
+
+docker run --name nginx -p 1024:443 nginx
