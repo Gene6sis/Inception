@@ -4,21 +4,8 @@ RUN apt update
 RUN apt upgrade -y
 RUN apt-get install mariadb-server -y
 
+COPY conf/mariadb-entrypoint.sh /etc/mysql/entrypoint.sh
 COPY conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
 
-ENV SQL_DATABASE=db_name \
-    SQL_USER=db_user \
-    SQL_PASSWORD=db_password \
-    SQL_ROOT_PASSWORD=root_password
-
-RUN /etc/init.d/mysql start
-RUN mysql -e "CREATE DATABASE IF NOT EXISTS \`${SQL_DATABASE}\`;"
-RUN mysql -e "CREATE USER IF NOT EXISTS \`${SQL_USER}\`@'localhost' IDENTIFIED BY '${SQL_PASSWORD}';"
-RUN mysql -e "GRANT ALL PRIVILEGES ON \`${SQL_DATABASE}\`.* TO \`${SQL_USER}\`@'%' IDENTIFIED BY '${SQL_PASSWORD}';"
-RUN mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${SQL_ROOT_PASSWORD}';"
-RUN mysql -e "FLUSH PRIVILEGES;"
-RUN /etc/init.d/mysql stop
-
 EXPOSE 3306
-
-CMD ["mysqld_safe", "--datadir=/var/lib/mysql", "--user=mysql"]
+ENTRYPOINT	["/bin/sh", "/etc/mysql/entrypoint.sh"]
