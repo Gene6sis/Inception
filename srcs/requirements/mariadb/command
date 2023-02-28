@@ -1,3 +1,0 @@
-sudo docker exec -it mariadb /bin/bash
-mysql -u root
-SHOW DATABASES;

@@ -1,11 +1,18 @@
 FROM debian:buster
 
-RUN apt update
-RUN apt upgrade -y
-RUN apt-get install mariadb-server -y
+RUN apt-get update && apt-get install -y \
+    mariadb-server mariadb-client
+#&& rm -rf /var/lib/apt/lists/* 
 
-COPY conf/mariadb-entrypoint.sh /etc/mysql/entrypoint.sh
-COPY conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
+COPY ./tools/script.sh ./script.sh
+
+RUN chown -R mysql:mysql /var/lib/mysql ;\
+    mkdir -p /run/mysqld ;\
+    chown -R mysql:mysql /run/mysqld ;\
+    mysql_install_db --datadir=/var/lib/mysql --user=mysql
+
+RUN chmod +x ./script.sh
 
 EXPOSE 3306
-ENTRYPOINT	["/bin/sh", "/etc/mysql/entrypoint.sh"]
+
+CMD ["./script.sh"]
